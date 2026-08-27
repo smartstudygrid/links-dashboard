@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Command Link Dashboard</title>
+  <title>Amanullah Khan • Command Dashboard</title>
   
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -50,25 +50,26 @@
   <header class="sticky top-0 z-30 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-xl">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-blue-600 to-teal-400 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-          <i data-lucide="globe" class="w-5 h-5 text-white"></i>
+        <!-- User Initials / Logo Badge -->
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-blue-600 to-teal-400 flex items-center justify-center font-bold text-white text-sm shadow-lg shadow-indigo-500/20 flex-shrink-0 tracking-wider">
+          AK
         </div>
         <div>
           <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
-            LaunchCommand
+            Amanullah Khan
             <span class="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
               Sheet Synced
             </span>
           </h1>
-          <p class="text-xs text-slate-400">Standalone HTML Bookmark Dashboard & Google Sheet Hub</p>
+          <p class="text-xs text-slate-400">Personal Command Center & Google Sheets Launchpad</p>
         </div>
       </div>
 
       <!-- Header Controls -->
       <div class="flex items-center gap-2 sm:gap-3">
-        <!-- Refresh Button -->
-        <button id="btn-sync-header" onclick="syncPullFromSheets(false)" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 border border-slate-700 hover:border-slate-600 transition-all text-slate-300 hover:text-white" title="Sync now with your Google Sheet">
+        <!-- Refresh / Sync Button -->
+        <button id="btn-sync-header" onclick="syncPullFromSheets(false)" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 border border-slate-700 hover:border-slate-600 transition-all text-slate-300 hover:text-white" title="Pull latest from Google Sheet">
           <i id="icon-header-sync" data-lucide="refresh-cw" class="w-3.5 h-3.5 text-indigo-400"></i>
           <span class="hidden sm:inline" id="txt-header-sync">Sync Sheet</span>
         </button>
@@ -139,7 +140,7 @@
             <div class="text-xs font-medium text-slate-400">Sheet Sync Status</div>
             <div id="metric-sync-status" class="text-xs sm:text-sm font-semibold mt-1 flex items-center gap-1.5 text-emerald-400">
               <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-              <span>Live Synced</span>
+              <span>Live Connected</span>
             </div>
           </div>
           <div class="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-400">
@@ -155,7 +156,7 @@
           <input
             id="input-search"
             type="text"
-            placeholder="Search websites, descriptions, keywords..."
+            placeholder="Search websites, descriptions, categories, or URLs..."
             oninput="handleSearch(this.value)"
             class="w-full pl-10 pr-10 py-2 text-sm bg-slate-900 border border-slate-800 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
           />
@@ -183,14 +184,16 @@
       </div>
 
       <!-- Empty State -->
-      <div id="dashboard-empty-state" class="hidden p-12 text-center rounded-3xl bg-slate-900/30 border border-dashed border-slate-800 my-8">
-        <i data-lucide="globe" class="w-12 h-12 text-slate-600 mx-auto mb-3"></i>
-        <h3 class="text-lg font-semibold text-slate-300">No websites match your search</h3>
-        <p class="text-sm text-slate-500 mt-1 max-w-sm mx-auto">
-          Try adjusting your search keywords or add a new bookmark.
+      <div id="dashboard-empty-state" class="hidden p-12 text-center rounded-3xl bg-slate-900/40 border border-dashed border-slate-800 my-8 backdrop-blur-sm">
+        <div class="w-14 h-14 rounded-2xl bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto mb-4">
+          <i data-lucide="link-2" class="w-7 h-7"></i>
+        </div>
+        <h3 id="empty-state-title" class="text-lg font-bold text-white">No Bookmarks Added Yet</h3>
+        <p id="empty-state-desc" class="text-sm text-slate-400 mt-1 max-w-md mx-auto">
+          Welcome to your command dashboard, Amanullah! Click below to add your first website shortcut.
         </p>
-        <button onclick="clearSearch(); openLinkModal();" class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-500 shadow-md">
-          <i data-lucide="plus" class="w-4 h-4"></i> Add New Link
+        <button onclick="clearSearch(); openLinkModal();" class="mt-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-500 shadow-lg shadow-indigo-600/30 transition-all active:scale-95">
+          <i data-lucide="plus" class="w-4 h-4"></i> Add Your First Link
         </button>
       </div>
 
@@ -228,10 +231,10 @@
         <div>
           <h2 class="text-xl font-bold text-white flex items-center gap-2">
             <i data-lucide="settings" class="w-5 h-5 text-indigo-400"></i>
-            Settings & Google Sheet Sync Hub
+            Amanullah's Settings & Google Sheet Sync
           </h2>
           <p class="text-sm text-slate-400 mt-0.5">
-            Manage your bookmark database, categories, and sync directly with Google Sheet.
+            Manage your bookmark database, categories, and synchronize directly with your connected Google Sheet.
           </p>
         </div>
         <button onclick="openLinkModal()" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md transition-all self-start sm:self-auto">
@@ -290,7 +293,7 @@
                 </span>
               </div>
               <p class="text-xs sm:text-sm text-slate-300 mt-2">
-                This dashboard communicates directly with your Apps Script Web App endpoint.
+                This dashboard automatically saves changes to your Google Sheet whenever links are added or updated. You can also manually pull or push anytime.
               </p>
 
               <!-- Sync Buttons -->
@@ -299,7 +302,7 @@
                   <i data-lucide="download-cloud" class="w-4 h-4"></i>
                   Pull Latest from Sheet
                 </button>
-                <button onclick="syncPushToSheets()" class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs sm:text-sm font-semibold transition-all active:scale-95">
+                <button onclick="syncPushToSheets(false)" class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs sm:text-sm font-semibold transition-all active:scale-95">
                   <i data-lucide="upload-cloud" class="w-4 h-4 text-emerald-400"></i>
                   Push Changes to Sheet
                 </button>
@@ -308,7 +311,7 @@
               <!-- Live Status Alert Box -->
               <div id="sync-banner-status" class="mt-5 p-4 rounded-2xl bg-emerald-950/60 border border-emerald-800/80 text-emerald-300 text-xs flex items-center gap-2.5">
                 <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-400 flex-shrink-0"></i>
-                <span id="sync-banner-text">Ready to sync with Google Sheet.</span>
+                <span id="sync-banner-text">Connected and ready to sync.</span>
               </div>
             </div>
           </div>
@@ -318,7 +321,7 @@
         <div class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800">
           <h4 class="text-sm font-bold text-white">Local JSON Backup</h4>
           <p class="text-xs text-slate-400 mt-1">
-            Export all bookmarks as raw JSON to clipboard for offline safekeeping.
+            Export all bookmarks as raw JSON to clipboard for offline backup.
           </p>
           <button onclick="exportJSON()" class="mt-3 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 flex items-center gap-1.5">
             <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy JSON to Clipboard
@@ -336,7 +339,7 @@
             <input
               id="input-new-category"
               type="text"
-              placeholder="New category name (e.g. Media, Crypto)"
+              placeholder="New category name (e.g. Media, Crypto, Work)"
               class="flex-1 px-3.5 py-2 text-sm bg-slate-950 border border-slate-800 rounded-xl text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500"
               onkeydown="if(event.key==='Enter') addCategory()"
             />
@@ -380,7 +383,7 @@
             id="form-link-title"
             type="text"
             required
-            placeholder="e.g. Notion Workspace"
+            placeholder="e.g. Google Drive, GitHub, Notion"
             class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500"
           />
         </div>
@@ -406,7 +409,7 @@
           <textarea
             id="form-link-desc"
             rows="2"
-            placeholder="Brief summary or reminders about this site..."
+            placeholder="Brief description or notes about this link..."
             class="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500"
           ></textarea>
         </div>
@@ -465,71 +468,10 @@
     // Embedded Google Apps Script Web App URL
     const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbz5pUphN6_X9etswjABqCmUB1kk-ws7n9qnNZNki_5HSa3jPgxbjwWgyewWys5iB5rjRQ/exec';
 
-    // Initial default bookmarks
-    let links = [
-      {
-        id: 'link-1',
-        title: 'Google Drive & Docs',
-        url: 'https://drive.google.com',
-        description: 'Cloud storage, team workspaces, and document management.',
-        category: 'Work',
-        color: '#3B82F6',
-        pinned: true,
-        clicks: 42
-      },
-      {
-        id: 'link-2',
-        title: 'GitHub Repositories',
-        url: 'https://github.com',
-        description: 'Source code management, CI/CD actions, and pull requests.',
-        category: 'Development',
-        color: '#8B5CF6',
-        pinned: true,
-        clicks: 89
-      },
-      {
-        id: 'link-3',
-        title: 'Google Sheets Tracker',
-        url: 'https://sheets.google.com',
-        description: 'Direct access to your primary synced data sheet.',
-        category: 'Work',
-        color: '#10B981',
-        pinned: true,
-        clicks: 56
-      },
-      {
-        id: 'link-4',
-        title: 'Figma Workspace',
-        url: 'https://figma.com',
-        description: 'UI/UX design systems, prototypes, and team wireframes.',
-        category: 'Design',
-        color: '#EC4899',
-        pinned: false,
-        clicks: 23
-      },
-      {
-        id: 'link-5',
-        title: 'ChatGPT & OpenAI',
-        url: 'https://chatgpt.com',
-        description: 'AI assistant for prompt ideation, research, and coding help.',
-        category: 'AI Tools',
-        color: '#14B8A6',
-        pinned: false,
-        clicks: 115
-      },
-      {
-        id: 'link-6',
-        title: 'Notion Knowledge Base',
-        url: 'https://notion.so',
-        description: 'Company wiki, sprint trackers, and personal notes.',
-        category: 'Productivity',
-        color: '#F59E0B',
-        pinned: false,
-        clicks: 34
-      }
-    ];
+    // Start with empty links (no mock data)
+    let links = [];
 
-    let categories = ['All', 'Work', 'Development', 'Design', 'AI Tools', 'Productivity', 'Finance', 'Personal'];
+    let categories = ['All', 'Work', 'Development', 'Design', 'AI Tools', 'Productivity', 'Personal'];
     const COLORS = ['#3B82F6', '#6366F1', '#8B5CF6', '#EC4899', '#EF4444', '#F59E0B', '#10B981', '#14B8A6', '#06B6D4', '#64748B'];
 
     let currentView = 'dashboard';
@@ -538,20 +480,20 @@
     let searchQuery = '';
     let viewMode = 'grid'; // 'grid' | 'compact'
 
-    // Initialize
+    // Initialize on page load
     window.addEventListener('DOMContentLoaded', () => {
       renderApp();
       syncPullFromSheets(true);
     });
 
-    // Render Full App
+    // Render Full App UI
     function renderApp() {
       renderMetrics();
       renderCategoryPills();
       renderDashboardCards();
       renderSettingsTable();
       renderCategoryBadges();
-      renderColorPicker();
+      renderColorPicker(document.getElementById('form-link-color')?.value || '#3B82F6');
       lucide.createIcons();
     }
 
@@ -715,6 +657,8 @@
       const unpinned = filtered.filter(l => !l.pinned);
 
       const emptyState = document.getElementById('dashboard-empty-state');
+      const emptyTitle = document.getElementById('empty-state-title');
+      const emptyDesc = document.getElementById('empty-state-desc');
       const secPinned = document.getElementById('section-pinned');
       const secAll = document.getElementById('section-all');
       const gridPinned = document.getElementById('grid-pinned');
@@ -724,6 +668,15 @@
         emptyState.classList.remove('hidden');
         secPinned.classList.add('hidden');
         secAll.classList.add('hidden');
+
+        if (searchQuery || selectedCategory !== 'All') {
+          emptyTitle.innerText = 'No matching bookmarks found';
+          emptyDesc.innerText = 'Try clearing your search query or selecting a different category filter.';
+        } else {
+          emptyTitle.innerText = 'No Bookmarks Added Yet';
+          emptyDesc.innerText = "Welcome to your command dashboard, Amanullah! Click below to add your first website shortcut.";
+        }
+        lucide.createIcons();
         return;
       }
 
@@ -844,6 +797,7 @@
         link.clicks = (link.clicks || 0) + 1;
         renderMetrics();
         renderDashboardCards();
+        syncPushToSheets(true); // silent auto-save of click count
         let targetUrl = link.url;
         if (!/^https?:\/\//i.test(targetUrl)) targetUrl = 'https://' + targetUrl;
         window.open(targetUrl, '_blank', 'noopener,noreferrer');
@@ -858,6 +812,7 @@
         renderMetrics();
         renderDashboardCards();
         renderSettingsTable();
+        syncPushToSheets(true); // auto sync pin status
         showToast(link.pinned ? 'Shortcut pinned to top' : 'Shortcut unpinned');
       }
     }
@@ -882,6 +837,17 @@
     // Render Settings Table
     function renderSettingsTable() {
       const tbody = document.getElementById('table-links-body');
+      if (links.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="px-4 py-8 text-center text-slate-500 text-xs">
+              No bookmarks in database. Click <strong>+ Add Link</strong> to create one.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
       tbody.innerHTML = links.map(link => `
         <tr class="hover:bg-slate-800/40 transition-colors">
           <td class="px-4 py-3">
@@ -929,6 +895,7 @@
     function deleteLink(id) {
       links = links.filter(l => l.id !== id);
       renderApp();
+      syncPushToSheets(true);
       showToast('Bookmark deleted');
     }
 
@@ -939,7 +906,7 @@
         <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700">
           <i data-lucide="tag" class="w-3 h-3 text-indigo-400"></i>
           ${cat}
-          ${(cat !== 'All' && cat !== 'Work') ? `
+          ${(cat !== 'All') ? `
             <button onclick="removeCategory('${cat}')" class="text-slate-400 hover:text-red-400 ml-1">
               <i data-lucide="x" class="w-3 h-3"></i>
             </button>
@@ -978,15 +945,18 @@
     // Render Color Picker in Modal
     function renderColorPicker(selectedColor = '#3B82F6') {
       const container = document.getElementById('color-palette-picker');
-      document.getElementById('form-link-color').value = selectedColor;
-      container.innerHTML = COLORS.map(col => `
-        <button
-          type="button"
-          onclick="selectColor('${col}')"
-          class="w-6 h-6 rounded-full border-2 transition-transform ${col === selectedColor ? 'scale-110 border-white' : 'border-transparent opacity-70'}"
-          style="background-color: ${col}"
-        ></button>
-      `).join('');
+      const colorInput = document.getElementById('form-link-color');
+      if (colorInput) colorInput.value = selectedColor;
+      if (container) {
+        container.innerHTML = COLORS.map(col => `
+          <button
+            type="button"
+            onclick="selectColor('${col}')"
+            class="w-6 h-6 rounded-full border-2 transition-transform ${col === selectedColor ? 'scale-110 border-white' : 'border-transparent opacity-70'}"
+            style="background-color: ${col}"
+          ></button>
+        `).join('');
+      }
     }
 
     function selectColor(col) {
@@ -1000,7 +970,9 @@
       const selectCat = document.getElementById('form-link-category');
 
       // Populate categories dropdown
-      selectCat.innerHTML = categories.filter(c => c !== 'All').map(c => `<option value="${c}">${c}</option>`).join('');
+      const activeCats = categories.filter(c => c !== 'All');
+      if (activeCats.length === 0) activeCats.push('General');
+      selectCat.innerHTML = activeCats.map(c => `<option value="${c}">${c}</option>`).join('');
 
       if (id) {
         const link = links.find(l => l.id === id);
@@ -1010,7 +982,7 @@
         document.getElementById('form-link-title').value = link.title || '';
         document.getElementById('form-link-url').value = link.url || '';
         document.getElementById('form-link-desc').value = link.description || '';
-        selectCat.value = link.category || 'Work';
+        selectCat.value = link.category || activeCats[0];
         document.getElementById('form-link-pinned').checked = !!link.pinned;
         renderColorPicker(link.color || '#3B82F6');
       } else {
@@ -1019,7 +991,7 @@
         document.getElementById('form-link-title').value = '';
         document.getElementById('form-link-url').value = '';
         document.getElementById('form-link-desc').value = '';
-        selectCat.value = categories.find(c => c !== 'All') || 'Work';
+        selectCat.value = activeCats[0];
         document.getElementById('form-link-pinned').checked = false;
         renderColorPicker('#3B82F6');
       }
@@ -1033,8 +1005,8 @@
       document.getElementById('modal-link').classList.add('hidden');
     }
 
-    // Handle Form Submit
-    function handleFormSubmit(e) {
+    // Handle Form Submit (Add or Edit)
+    async function handleFormSubmit(e) {
       e.preventDefault();
       const id = document.getElementById('form-link-id').value;
       const title = document.getElementById('form-link-title').value.trim();
@@ -1054,7 +1026,7 @@
       }
 
       if (id) {
-        // Edit
+        // Edit existing
         const link = links.find(l => l.id === id);
         if (link) {
           link.title = title;
@@ -1063,36 +1035,42 @@
           link.category = category;
           link.color = color;
           link.pinned = pinned;
-          showToast('Bookmark updated');
+          showToast('Bookmark updated!');
         }
       } else {
-        // Add
-        links.unshift({
+        // Add new link to the top of list
+        const newLink = {
           id: 'link-' + Date.now(),
-          title,
-          url,
-          description,
-          category,
-          color,
-          pinned,
-          clicks: 0
-        });
-        showToast('New bookmark created');
+          title: title,
+          url: url,
+          description: description,
+          category: category,
+          color: color,
+          pinned: pinned,
+          clicks: 0,
+          createdAt: new Date().toISOString()
+        };
+        links.unshift(newLink);
+        showToast('New bookmark created!');
       }
 
+      // Close modal and immediately render on Dashboard
       closeLinkModal();
       renderApp();
+
+      // Automatically sync and push changes to Google Sheets
+      await syncPushToSheets(true);
     }
 
-    // Google Sheets: Pull
+    // Google Sheets: Pull Links from Sheet
     async function syncPullFromSheets(isInitial = false) {
       const headerIcon = document.getElementById('icon-header-sync');
       const headerTxt = document.getElementById('txt-header-sync');
       const bannerStatus = document.getElementById('sync-banner-status');
       const bannerTxt = document.getElementById('sync-banner-text');
 
-      headerIcon.classList.add('animate-spin');
-      headerTxt.innerText = 'Syncing...';
+      if (headerIcon) headerIcon.classList.add('animate-spin');
+      if (headerTxt) headerTxt.innerText = 'Syncing...';
 
       try {
         const response = await fetch(GOOGLE_SHEET_URL);
@@ -1102,68 +1080,90 @@
           if (result.data.length > 0) {
             links = result.data;
             
-            // Collect new categories
+            // Extract categories
             const newCats = new Set(categories);
             result.data.forEach(item => {
               if (item.category && item.category !== 'All') newCats.add(item.category);
             });
             categories = Array.from(newCats);
 
-            if (!isInitial) showToast(`Synced ${result.data.length} links from Google Sheet!`);
-          } else if (!isInitial) {
-            showToast('Google Sheet is currently empty.', 'info');
+            if (!isInitial) showToast(`Synced ${result.data.length} link(s) from Google Sheet!`);
+          } else {
+            // Sheet is empty
+            if (links.length > 0) {
+              // Push local links to sheet so it's initialized
+              syncPushToSheets(true);
+            } else if (!isInitial) {
+              showToast('Google Sheet is currently empty.', 'info');
+            }
           }
 
-          bannerStatus.className = 'mt-5 p-4 rounded-2xl bg-emerald-950/60 border border-emerald-800/80 text-emerald-300 text-xs flex items-center gap-2.5';
-          bannerTxt.innerText = `Last synced on ${new Date().toLocaleTimeString()}`;
+          if (bannerStatus) bannerStatus.className = 'mt-5 p-4 rounded-2xl bg-emerald-950/60 border border-emerald-800/80 text-emerald-300 text-xs flex items-center gap-2.5';
+          if (bannerTxt) bannerTxt.innerText = `Last synced on ${new Date().toLocaleTimeString()}`;
         } else {
-          throw new Error(result.message || 'Invalid format');
+          throw new Error(result.message || 'Invalid sheet response');
         }
       } catch (err) {
-        console.error(err);
-        bannerStatus.className = 'mt-5 p-4 rounded-2xl bg-red-950/80 border border-red-800 text-red-300 text-xs flex items-start gap-2.5';
-        bannerTxt.innerText = `Sync error: Could not reach Google Sheet Web App.`;
+        console.error('Pull error:', err);
+        if (bannerStatus) bannerStatus.className = 'mt-5 p-4 rounded-2xl bg-red-950/80 border border-red-800 text-red-300 text-xs flex items-start gap-2.5';
+        if (bannerTxt) bannerTxt.innerText = `Sync status: Could not reach Google Sheet Web App.`;
         if (!isInitial) showToast('Sync error with Google Sheet', 'error');
       } finally {
-        headerIcon.classList.remove('animate-spin');
-        headerTxt.innerText = 'Sync Sheet';
+        if (headerIcon) headerIcon.classList.remove('animate-spin');
+        if (headerTxt) headerTxt.innerText = 'Sync Sheet';
         renderApp();
       }
     }
 
-    // Google Sheets: Push
-    async function syncPushToSheets() {
+    // Google Sheets: Push Current Links to Sheet
+    async function syncPushToSheets(silent = false) {
       const headerIcon = document.getElementById('icon-header-sync');
       const headerTxt = document.getElementById('txt-header-sync');
       const bannerStatus = document.getElementById('sync-banner-status');
       const bannerTxt = document.getElementById('sync-banner-text');
 
-      headerIcon.classList.add('animate-spin');
-      headerTxt.innerText = 'Pushing...';
+      if (headerIcon) headerIcon.classList.add('animate-spin');
+      if (headerTxt) headerTxt.innerText = 'Syncing...';
 
       try {
-        const response = await fetch(GOOGLE_SHEET_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ action: 'saveAll', links: links })
-        });
+        const payload = JSON.stringify({ action: 'saveAll', links: links });
 
-        const result = await response.json();
-        if (result.status === 'success') {
-          showToast('Saved all links to your Google Sheet!');
-          bannerStatus.className = 'mt-5 p-4 rounded-2xl bg-emerald-950/60 border border-emerald-800/80 text-emerald-300 text-xs flex items-center gap-2.5';
-          bannerTxt.innerText = `Google Sheet updated on ${new Date().toLocaleTimeString()}`;
-        } else {
-          throw new Error(result.message || 'Push failed');
+        let pushSuccess = false;
+        try {
+          // Standard POST with text/plain to avoid CORS preflight rejection in Google Apps Script
+          const res = await fetch(GOOGLE_SHEET_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: payload
+          });
+          const data = await res.json();
+          if (data && data.status === 'success') {
+            pushSuccess = true;
+          }
+        } catch (postErr) {
+          // Fallback if browser blocks redirect response
+          await fetch(GOOGLE_SHEET_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: payload
+          });
+          pushSuccess = true;
+        }
+
+        if (pushSuccess) {
+          if (!silent) showToast('Saved all links to your Google Sheet!');
+          if (bannerStatus) bannerStatus.className = 'mt-5 p-4 rounded-2xl bg-emerald-950/60 border border-emerald-800/80 text-emerald-300 text-xs flex items-center gap-2.5';
+          if (bannerTxt) bannerTxt.innerText = `Google Sheet updated on ${new Date().toLocaleTimeString()}`;
         }
       } catch (err) {
-        console.error(err);
-        bannerStatus.className = 'mt-5 p-4 rounded-2xl bg-red-950/80 border border-red-800 text-red-300 text-xs flex items-start gap-2.5';
-        bannerTxt.innerText = `Failed to push updates to Google Sheet.`;
-        showToast('Error syncing with Google Sheet', 'error');
+        console.error('Push error:', err);
+        if (!silent) showToast('Failed to push updates to Google Sheet.', 'error');
+        if (bannerStatus) bannerStatus.className = 'mt-5 p-4 rounded-2xl bg-red-950/80 border border-red-800 text-red-300 text-xs flex items-start gap-2.5';
+        if (bannerTxt) bannerTxt.innerText = `Failed to sync updates to Google Sheet.`;
       } finally {
-        headerIcon.classList.remove('animate-spin');
-        headerTxt.innerText = 'Sync Sheet';
+        if (headerIcon) headerIcon.classList.remove('animate-spin');
+        if (headerTxt) headerTxt.innerText = 'Sync Sheet';
       }
     }
   </script>
