@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Command Link Dashboard</title>
+  
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons via CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <style>
+    /* Custom scrollbars and transitions */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #020617;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+    .scrollbar-none::-webkit-scrollbar {
+      display: none;
+    }
+    .scrollbar-none {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white antialiased">
+
+  <!-- Toast Notification Box -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transition-all duration-300 transform translate-y-20 opacity-0 pointer-events-none">
+    <div id="toast-content" class="flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl backdrop-blur-md border text-sm font-medium bg-emerald-950/90 border-emerald-700 text-emerald-200">
+      <i id="toast-icon" data-lucide="check-circle-2" class="w-5 h-5 text-emerald-400"></i>
+      <span id="toast-message">Message</span>
+    </div>
+  </div>
+
+  <!-- Top Header Bar -->
+  <header class="sticky top-0 z-30 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-blue-600 to-teal-400 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+          <i data-lucide="globe" class="w-5 h-5 text-white"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+            LaunchCommand
+            <span class="text-[10px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Sheet Synced
+            </span>
+          </h1>
+          <p class="text-xs text-slate-400">Standalone HTML Bookmark Dashboard & Google Sheet Hub</p>
+        </div>
+      </div>
+
+      <!-- Header Controls -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Refresh Button -->
+        <button id="btn-sync-header" onclick="syncPullFromSheets(false)" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 border border-slate-700 hover:border-slate-600 transition-all text-slate-300 hover:text-white" title="Sync now with your Google Sheet">
+          <i id="icon-header-sync" data-lucide="refresh-cw" class="w-3.5 h-3.5 text-indigo-400"></i>
+          <span class="hidden sm:inline" id="txt-header-sync">Sync Sheet</span>
+        </button>
+
+        <!-- Add Link Button -->
+        <button onclick="openLinkModal()" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white text-xs sm:text-sm font-semibold shadow-md shadow-indigo-600/30 transition-all active:scale-95">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span>Add Link</span>
+        </button>
+
+        <!-- View Switcher -->
+        <div class="flex p-1 bg-slate-900 border border-slate-800 rounded-xl">
+          <button id="nav-btn-dashboard" onclick="switchView('dashboard')" class="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs sm:text-sm font-medium transition-all bg-indigo-600 text-white shadow-sm">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">Dashboard</span>
+          </button>
+          <button id="nav-btn-settings" onclick="switchView('settings')" class="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-400 hover:text-slate-200">
+            <i data-lucide="settings" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">Settings</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ========================================================================= -->
+    <!-- DASHBOARD VIEW -->
+    <!-- ========================================================================= -->
+    <div id="view-dashboard" class="space-y-6">
+      
+      <!-- Metrics Overview -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-md flex items-center justify-between">
+          <div>
+            <div class="text-xs font-medium text-slate-400">Total Bookmarks</div>
+            <div id="metric-total-links" class="text-xl sm:text-2xl font-bold text-white mt-1">0</div>
+          </div>
+          <div class="p-2.5 rounded-xl bg-blue-500/10 text-blue-400">
+            <i data-lucide="bookmark" class="w-5 h-5"></i>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-md flex items-center justify-between">
+          <div>
+            <div class="text-xs font-medium text-slate-400">Pinned Shortcuts</div>
+            <div id="metric-pinned-links" class="text-xl sm:text-2xl font-bold text-amber-400 mt-1">0</div>
+          </div>
+          <div class="p-2.5 rounded-xl bg-amber-500/10 text-amber-400">
+            <i data-lucide="star" class="w-5 h-5 fill-amber-400/30"></i>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-md flex items-center justify-between">
+          <div>
+            <div class="text-xs font-medium text-slate-400">Total Launches</div>
+            <div id="metric-total-clicks" class="text-xl sm:text-2xl font-bold text-emerald-400 mt-1">0</div>
+          </div>
+          <div class="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400">
+            <i data-lucide="trending-up" class="w-5 h-5"></i>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-md flex items-center justify-between">
+          <div>
+            <div class="text-xs font-medium text-slate-400">Sheet Sync Status</div>
+            <div id="metric-sync-status" class="text-xs sm:text-sm font-semibold mt-1 flex items-center gap-1.5 text-emerald-400">
+              <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+              <span>Live Synced</span>
+            </div>
+          </div>
+          <div class="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-400">
+            <i data-lucide="upload-cloud" class="w-5 h-5"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search & Layout Bar -->
+      <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-slate-900/40 p-2 rounded-2xl border border-slate-800/60 backdrop-blur-md">
+        <div class="relative flex-1">
+          <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+          <input
+            id="input-search"
+            type="text"
+            placeholder="Search websites, descriptions, keywords..."
+            oninput="handleSearch(this.value)"
+            class="w-full pl-10 pr-10 py-2 text-sm bg-slate-900 border border-slate-800 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+          />
+          <button id="btn-clear-search" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-1 self-end md:self-auto bg-slate-900 p-1 rounded-xl border border-slate-800">
+          <button id="btn-view-grid" onclick="setViewMode('grid')" class="p-1.5 rounded-lg text-xs font-medium bg-indigo-600 text-white transition-all" title="Grid View">
+            <i data-lucide="grid" class="w-4 h-4"></i>
+          </button>
+          <button id="btn-view-compact" onclick="setViewMode('compact')" class="p-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 transition-all" title="List View">
+            <i data-lucide="list" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
+        <i data-lucide="filter" class="w-3.5 h-3.5 text-slate-400 mr-1 flex-shrink-0"></i>
+        <div id="category-pills-container" class="flex items-center gap-1.5">
+          <!-- Dynamic category buttons -->
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div id="dashboard-empty-state" class="hidden p-12 text-center rounded-3xl bg-slate-900/30 border border-dashed border-slate-800 my-8">
+        <i data-lucide="globe" class="w-12 h-12 text-slate-600 mx-auto mb-3"></i>
+        <h3 class="text-lg font-semibold text-slate-300">No websites match your search</h3>
+        <p class="text-sm text-slate-500 mt-1 max-w-sm mx-auto">
+          Try adjusting your search keywords or add a new bookmark.
+        </p>
+        <button onclick="clearSearch(); openLinkModal();" class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-500 shadow-md">
+          <i data-lucide="plus" class="w-4 h-4"></i> Add New Link
+        </button>
+      </div>
+
+      <!-- Pinned Shortcuts Section -->
+      <section id="section-pinned" class="space-y-3 hidden">
+        <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-400">
+          <i data-lucide="star" class="w-3.5 h-3.5 fill-amber-400"></i>
+          <span>Pinned Shortcuts (<span id="count-pinned">0</span>)</span>
+        </div>
+        <div id="grid-pinned" class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          <!-- Cards injected via JS -->
+        </div>
+      </section>
+
+      <!-- All Bookmarks Section -->
+      <section id="section-all" class="space-y-3 pt-2 hidden">
+        <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
+          <i data-lucide="bookmark" class="w-3.5 h-3.5"></i>
+          <span id="label-bookmarks">Bookmarks</span>
+        </div>
+        <div id="grid-all" class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          <!-- Cards injected via JS -->
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- SETTINGS VIEW -->
+    <!-- ========================================================================= -->
+    <div id="view-settings" class="space-y-6 hidden">
+      
+      <!-- Settings Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+        <div>
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <i data-lucide="settings" class="w-5 h-5 text-indigo-400"></i>
+            Settings & Google Sheet Sync Hub
+          </h2>
+          <p class="text-sm text-slate-400 mt-0.5">
+            Manage your bookmark database, categories, and sync directly with Google Sheet.
+          </p>
+        </div>
+        <button onclick="openLinkModal()" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-md transition-all self-start sm:self-auto">
+          <i data-lucide="plus" class="w-4 h-4"></i> Add Link
+        </button>
+      </div>
+
+      <!-- Settings Sub-Tabs -->
+      <div class="flex border-b border-slate-800 gap-6 text-sm">
+        <button onclick="switchSettingsTab('links')" id="stab-btn-links" class="pb-3 font-semibold text-indigo-400 relative">
+          Link Manager (<span id="settings-link-count">0</span>)
+          <span id="indicator-links" class="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-500 rounded-full"></span>
+        </button>
+        <button onclick="switchSettingsTab('sync')" id="stab-btn-sync" class="pb-3 font-semibold text-slate-400 hover:text-slate-200 relative">
+          Google Sheet Sync
+          <span id="indicator-sync" class="hidden absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-500 rounded-full"></span>
+        </button>
+        <button onclick="switchSettingsTab('categories')" id="stab-btn-categories" class="pb-3 font-semibold text-slate-400 hover:text-slate-200 relative">
+          Categories
+          <span id="indicator-categories" class="hidden absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-500 rounded-full"></span>
+        </button>
+      </div>
+
+      <!-- SUB-TAB 1: LINK MANAGER TABLE -->
+      <div id="subtab-links" class="space-y-4">
+        <div class="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/60 backdrop-blur-md">
+          <table class="w-full text-left text-xs sm:text-sm">
+            <thead class="bg-slate-900 border-b border-slate-800 text-slate-400 font-semibold uppercase tracking-wider text-[11px]">
+              <tr>
+                <th class="px-4 py-3">Website</th>
+                <th class="px-4 py-3">Category</th>
+                <th class="px-4 py-3">Status</th>
+                <th class="px-4 py-3">Clicks</th>
+                <th class="px-4 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="table-links-body" class="divide-y divide-slate-800/60">
+              <!-- Rows injected via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SUB-TAB 2: GOOGLE SHEET SYNC -->
+      <div id="subtab-sync" class="space-y-6 hidden">
+        <div class="p-6 rounded-3xl bg-gradient-to-br from-indigo-950/40 via-slate-900 to-slate-900 border border-indigo-900/40">
+          <div class="flex items-start gap-4">
+            <div class="p-3 rounded-2xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30">
+              <i data-lucide="file-spreadsheet" class="w-7 h-7"></i>
+            </div>
+            <div class="flex-1">
+              <div class="flex items-center justify-between flex-wrap gap-2">
+                <h3 class="text-lg font-bold text-white">Connected Google Sheet</h3>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                  <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Embedded Endpoint
+                </span>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-300 mt-2">
+                This dashboard communicates directly with your Apps Script Web App endpoint.
+              </p>
+
+              <!-- Sync Buttons -->
+              <div class="mt-6 flex flex-wrap items-center gap-3">
+                <button onclick="syncPullFromSheets(false)" class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-semibold shadow-lg shadow-indigo-600/30 transition-all active:scale-95">
+                  <i data-lucide="download-cloud" class="w-4 h-4"></i>
+                  Pull Latest from Sheet
+                </button>
+                <button onclick="syncPushToSheets()" class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs sm:text-sm font-semibold transition-all active:scale-95">
+                  <i data-lucide="upload-cloud" class="w-4 h-4 text-emerald-400"></i>
+                  Push Changes to Sheet
+                </button>
+              </div>
+
+              <!-- Live Status Alert Box -->
+              <div id="sync-banner-status" class="mt-5 p-4 rounded-2xl bg-emerald-950/60 border border-emerald-800/80 text-emerald-300 text-xs flex items-center gap-2.5">
+                <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-400 flex-shrink-0"></i>
+                <span id="sync-banner-text">Ready to sync with Google Sheet.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Backup Box -->
+        <div class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800">
+          <h4 class="text-sm font-bold text-white">Local JSON Backup</h4>
+          <p class="text-xs text-slate-400 mt-1">
+            Export all bookmarks as raw JSON to clipboard for offline safekeeping.
+          </p>
+          <button onclick="exportJSON()" class="mt-3 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy JSON to Clipboard
+          </button>
+        </div>
+      </div>
+
+      <!-- SUB-TAB 3: CATEGORIES -->
+      <div id="subtab-categories" class="space-y-4 max-w-xl hidden">
+        <div class="p-5 rounded-2xl bg-slate-900 border border-slate-800">
+          <h3 class="text-base font-bold text-white mb-2">Manage Categories</h3>
+          <p class="text-xs text-slate-400 mb-4">Add custom tags and categories to organize your links.</p>
+          
+          <div class="flex gap-2 mb-4">
+            <input
+              id="input-new-category"
+              type="text"
+              placeholder="New category name (e.g. Media, Crypto)"
+              class="flex-1 px-3.5 py-2 text-sm bg-slate-950 border border-slate-800 rounded-xl text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500"
+              onkeydown="if(event.key==='Enter') addCategory()"
+            />
+            <button onclick="addCategory()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl flex items-center gap-1">
+              <i data-lucide="plus" class="w-4 h-4"></i> Add
+            </button>
+          </div>
+
+          <div id="categories-badge-container" class="flex flex-wrap gap-2">
+            <!-- Dynamic Category Badges -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: ADD / EDIT BOOKMARK -->
+  <!-- ========================================================================= -->
+  <div id="modal-link" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm hidden">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in">
+      <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+        <h3 id="modal-title" class="text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="plus" class="w-4 h-4 text-indigo-400"></i>
+          Add New Bookmark
+        </h3>
+        <button onclick="closeLinkModal()" class="p-1 rounded-lg text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="form-link" onsubmit="handleFormSubmit(event)" class="p-6 space-y-4">
+        <input type="hidden" id="form-link-id" value="">
+
+        <!-- Title -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Website Title *</label>
+          <input
+            id="form-link-title"
+            type="text"
+            required
+            placeholder="e.g. Notion Workspace"
+            class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500"
+          />
+        </div>
+
+        <!-- URL -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Website URL *</label>
+          <div class="relative">
+            <i data-lucide="link" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500"></i>
+            <input
+              id="form-link-url"
+              type="text"
+              required
+              placeholder="https://example.com"
+              class="w-full pl-10 pr-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500"
+            />
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Description / Notes</label>
+          <textarea
+            id="form-link-desc"
+            rows="2"
+            placeholder="Brief summary or reminders about this site..."
+            class="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500"
+          ></textarea>
+        </div>
+
+        <!-- Category & Color -->
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Category</label>
+            <select
+              id="form-link-category"
+              class="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100 focus:outline-none focus:border-indigo-500"
+            >
+              <!-- Options populated dynamically -->
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Accent Color</label>
+            <div id="color-palette-picker" class="flex items-center gap-1.5 pt-1 overflow-x-auto">
+              <!-- Color circles -->
+            </div>
+            <input type="hidden" id="form-link-color" value="#3B82F6">
+          </div>
+        </div>
+
+        <!-- Pin to Top -->
+        <div class="pt-1">
+          <label class="flex items-center gap-2.5 cursor-pointer">
+            <input
+              id="form-link-pinned"
+              type="checkbox"
+              class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-950 border-slate-800"
+            />
+            <span class="text-xs font-medium text-slate-300 flex items-center gap-1.5">
+              <i data-lucide="star" class="w-3.5 h-3.5 text-amber-400 fill-amber-400"></i>
+              Pin to top shortcuts
+            </span>
+          </label>
+        </div>
+
+        <!-- Modal Actions -->
+        <div class="pt-4 flex items-center justify-end gap-2 border-t border-slate-800">
+          <button type="button" onclick="closeLinkModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white">
+            Cancel
+          </button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/30">
+            Save Bookmark
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Application Logic -->
+  <script>
+    // Embedded Google Apps Script Web App URL
+    const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbz5pUphN6_X9etswjABqCmUB1kk-ws7n9qnNZNki_5HSa3jPgxbjwWgyewWys5iB5rjRQ/exec';
+
+    // Initial default bookmarks
+    let links = [
+      {
+        id: 'link-1',
+        title: 'Google Drive & Docs',
+        url: 'https://drive.google.com',
+        description: 'Cloud storage, team workspaces, and document management.',
+        category: 'Work',
+        color: '#3B82F6',
+        pinned: true,
+        clicks: 42
+      },
+      {
+        id: 'link-2',
+        title: 'GitHub Repositories',
+        url: 'https://github.com',
+        description: 'Source code management, CI/CD actions, and pull requests.',
+        category: 'Development',
+        color: '#8B5CF6',
+        pinned: true,
+        clicks: 89
+      },
+      {
+        id: 'link-3',
+        title: 'Google Sheets Tracker',
+        url: 'https://sheets.google.com',
+        description: 'Direct access to your primary synced data sheet.',
+        category: 'Work',
+        color: '#10B981',
+        pinned: true,
+        clicks: 56
+      },
+      {
+        id: 'link-4',
+        title: 'Figma Workspace',
+        url: 'https://figma.com',
+        description: 'UI/UX design systems, prototypes, and team wireframes.',
+        category: 'Design',
+        color: '#EC4899',
+        pinned: false,
+        clicks: 23
+      },
+      {
+        id: 'link-5',
+        title: 'ChatGPT & OpenAI',
+        url: 'https://chatgpt.com',
+        description: 'AI assistant for prompt ideation, research, and coding help.',
+        category: 'AI Tools',
+        color: '#14B8A6',
+        pinned: false,
+        clicks: 115
+      },
+      {
+        id: 'link-6',
+        title: 'Notion Knowledge Base',
+        url: 'https://notion.so',
+        description: 'Company wiki, sprint trackers, and personal notes.',
+        category: 'Productivity',
+        color: '#F59E0B',
+        pinned: false,
+        clicks: 34
+      }
+    ];
+
+    let categories = ['All', 'Work', 'Development', 'Design', 'AI Tools', 'Productivity', 'Finance', 'Personal'];
+    const COLORS = ['#3B82F6', '#6366F1', '#8B5CF6', '#EC4899', '#EF4444', '#F59E0B', '#10B981', '#14B8A6', '#06B6D4', '#64748B'];
+
+    let currentView = 'dashboard';
+    let currentSettingsTab = 'links';
+    let selectedCategory = 'All';
+    let searchQuery = '';
+    let viewMode = 'grid'; // 'grid' | 'compact'
+
+    // Initialize
+    window.addEventListener('DOMContentLoaded', () => {
+      renderApp();
+      syncPullFromSheets(true);
+    });
+
+    // Render Full App
+    function renderApp() {
+      renderMetrics();
+      renderCategoryPills();
+      renderDashboardCards();
+      renderSettingsTable();
+      renderCategoryBadges();
+      renderColorPicker();
+      lucide.createIcons();
+    }
+
+    // Toast message helper
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastContent = document.getElementById('toast-content');
+      const toastIcon = document.getElementById('toast-icon');
+      const toastMsg = document.getElementById('toast-message');
+
+      toastMsg.innerText = message;
+
+      if (type === 'error') {
+        toastContent.className = 'flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl backdrop-blur-md border text-sm font-medium bg-red-950/90 border-red-700 text-red-200';
+        toastIcon.setAttribute('data-lucide', 'alert-circle');
+        toastIcon.className = 'w-5 h-5 text-red-400';
+      } else if (type === 'info') {
+        toastContent.className = 'flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl backdrop-blur-md border text-sm font-medium bg-blue-950/90 border-blue-700 text-blue-200';
+        toastIcon.setAttribute('data-lucide', 'help-circle');
+        toastIcon.className = 'w-5 h-5 text-blue-400';
+      } else {
+        toastContent.className = 'flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl backdrop-blur-md border text-sm font-medium bg-emerald-950/90 border-emerald-700 text-emerald-200';
+        toastIcon.setAttribute('data-lucide', 'check-circle-2');
+        toastIcon.className = 'w-5 h-5 text-emerald-400';
+      }
+
+      lucide.createIcons();
+
+      toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+      }, 3500);
+    }
+
+    // Switch Top Views (Dashboard / Settings)
+    function switchView(view) {
+      currentView = view;
+      const vDash = document.getElementById('view-dashboard');
+      const vSett = document.getElementById('view-settings');
+      const btnDash = document.getElementById('nav-btn-dashboard');
+      const btnSett = document.getElementById('nav-btn-settings');
+
+      if (view === 'dashboard') {
+        vDash.classList.remove('hidden');
+        vSett.classList.add('hidden');
+        btnDash.className = 'flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs sm:text-sm font-medium transition-all bg-indigo-600 text-white shadow-sm';
+        btnSett.className = 'flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-400 hover:text-slate-200';
+      } else {
+        vDash.classList.add('hidden');
+        vSett.classList.remove('hidden');
+        btnDash.className = 'flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs sm:text-sm font-medium transition-all text-slate-400 hover:text-slate-200';
+        btnSett.className = 'flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs sm:text-sm font-medium transition-all bg-indigo-600 text-white shadow-sm';
+      }
+      lucide.createIcons();
+    }
+
+    // Switch Settings Subtabs
+    function switchSettingsTab(tab) {
+      currentSettingsTab = tab;
+      ['links', 'sync', 'categories'].forEach(t => {
+        const sub = document.getElementById(`subtab-${t}`);
+        const btn = document.getElementById(`stab-btn-${t}`);
+        const ind = document.getElementById(`indicator-${t}`);
+        if (t === tab) {
+          sub.classList.remove('hidden');
+          btn.className = 'pb-3 font-semibold text-indigo-400 relative';
+          ind.classList.remove('hidden');
+        } else {
+          sub.classList.add('hidden');
+          btn.className = 'pb-3 font-semibold text-slate-400 hover:text-slate-200 relative';
+          ind.classList.add('hidden');
+        }
+      });
+      lucide.createIcons();
+    }
+
+    // Layout Mode (Grid / Compact)
+    function setViewMode(mode) {
+      viewMode = mode;
+      const btnGrid = document.getElementById('btn-view-grid');
+      const btnCompact = document.getElementById('btn-view-compact');
+
+      if (mode === 'grid') {
+        btnGrid.className = 'p-1.5 rounded-lg text-xs font-medium bg-indigo-600 text-white transition-all';
+        btnCompact.className = 'p-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 transition-all';
+      } else {
+        btnGrid.className = 'p-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 transition-all';
+        btnCompact.className = 'p-1.5 rounded-lg text-xs font-medium bg-indigo-600 text-white transition-all';
+      }
+      renderDashboardCards();
+    }
+
+    // Search and Filters
+    function handleSearch(val) {
+      searchQuery = val.trim().toLowerCase();
+      document.getElementById('btn-clear-search').classList.toggle('hidden', !searchQuery);
+      renderDashboardCards();
+    }
+
+    function clearSearch() {
+      searchQuery = '';
+      document.getElementById('input-search').value = '';
+      document.getElementById('btn-clear-search').classList.add('hidden');
+      renderDashboardCards();
+    }
+
+    function setCategory(cat) {
+      selectedCategory = cat;
+      renderCategoryPills();
+      renderDashboardCards();
+    }
+
+    // Render Metrics
+    function renderMetrics() {
+      document.getElementById('metric-total-links').innerText = links.length;
+      document.getElementById('metric-pinned-links').innerText = links.filter(l => l.pinned).length;
+      const totalClicks = links.reduce((sum, l) => sum + (l.clicks || 0), 0);
+      document.getElementById('metric-total-clicks').innerText = totalClicks;
+      document.getElementById('settings-link-count').innerText = links.length;
+    }
+
+    // Render Category Pills
+    function renderCategoryPills() {
+      const container = document.getElementById('category-pills-container');
+      container.innerHTML = categories.map(cat => `
+        <button
+          onclick="setCategory('${cat}')"
+          class="px-3 py-1.5 rounded-xl font-medium whitespace-nowrap transition-all flex-shrink-0 ${
+            selectedCategory === cat
+              ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
+              : 'bg-slate-900/80 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800/80'
+          }"
+        >
+          ${cat}
+        </button>
+      `).join('');
+    }
+
+    // Helper: Favicon URL
+    function getFavicon(url) {
+      try {
+        const u = new URL(url.startsWith('http') ? url : 'https://' + url);
+        return `https://www.google.com/s2/favicons?domain=${u.hostname}&sz=64`;
+      } catch (e) {
+        return '';
+      }
+    }
+
+    // Render Dashboard Cards
+    function renderDashboardCards() {
+      const filtered = links.filter(l => {
+        const matchSearch = (l.title || '').toLowerCase().includes(searchQuery) ||
+                            (l.description || '').toLowerCase().includes(searchQuery) ||
+                            (l.url || '').toLowerCase().includes(searchQuery) ||
+                            (l.category || '').toLowerCase().includes(searchQuery);
+        const matchCat = selectedCategory === 'All' || l.category === selectedCategory;
+        return matchSearch && matchCat;
+      });
+
+      const pinned = filtered.filter(l => l.pinned);
+      const unpinned = filtered.filter(l => !l.pinned);
+
+      const emptyState = document.getElementById('dashboard-empty-state');
+      const secPinned = document.getElementById('section-pinned');
+      const secAll = document.getElementById('section-all');
+      const gridPinned = document.getElementById('grid-pinned');
+      const gridAll = document.getElementById('grid-all');
+
+      if (filtered.length === 0) {
+        emptyState.classList.remove('hidden');
+        secPinned.classList.add('hidden');
+        secAll.classList.add('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      // Grid classes based on viewMode
+      const gridClass = viewMode === 'grid' 
+        ? 'grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' 
+        : 'grid gap-3 grid-cols-1';
+
+      gridPinned.className = gridClass;
+      gridAll.className = gridClass;
+
+      // Render Pinned Section
+      if (pinned.length > 0) {
+        secPinned.classList.remove('hidden');
+        document.getElementById('count-pinned').innerText = pinned.length;
+        gridPinned.innerHTML = pinned.map(l => createCardHTML(l)).join('');
+      } else {
+        secPinned.classList.add('hidden');
+      }
+
+      // Render Unpinned Section
+      if (unpinned.length > 0) {
+        secAll.classList.remove('hidden');
+        document.getElementById('label-bookmarks').innerText = pinned.length > 0 ? `All Bookmarks (${unpinned.length})` : `Bookmarks (${unpinned.length})`;
+        gridAll.innerHTML = unpinned.map(l => createCardHTML(l)).join('');
+      } else {
+        secAll.classList.add('hidden');
+      }
+
+      lucide.createIcons();
+    }
+
+    // Create Card HTML
+    function createCardHTML(link) {
+      const favicon = getFavicon(link.url);
+      const initialLetter = (link.title || 'U').charAt(0).toUpperCase();
+      const cleanUrl = link.url.replace(/^https?:\/\/(www\.)?/, '');
+
+      if (viewMode === 'compact') {
+        return `
+          <div class="group flex items-center justify-between p-3 rounded-2xl bg-slate-900/60 hover:bg-slate-900 border border-slate-800/80 hover:border-indigo-500/40 backdrop-blur-md transition-all">
+            <div class="flex items-center gap-3 min-w-0 flex-1 cursor-pointer" onclick="launchLink('${link.id}')">
+              <div class="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-white shadow-sm flex-shrink-0" style="background-color: ${link.color || '#3B82F6'}">
+                <img src="${favicon}" alt="" class="w-5 h-5 rounded" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <span style="display:none">${initialLetter}</span>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2">
+                  <h3 class="text-sm font-semibold text-white group-hover:text-indigo-400 transition-colors truncate">${link.title}</h3>
+                  <span class="text-[10px] px-2 py-0.5 rounded-md bg-slate-800 text-slate-400 border border-slate-700/60 font-medium">${link.category || 'General'}</span>
+                </div>
+                <p class="text-xs text-slate-400 truncate mt-0.5">${link.description || link.url}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-1 ml-3">
+              <button onclick="togglePin('${link.id}')" class="p-1.5 rounded-lg transition-colors ${link.pinned ? 'text-amber-400' : 'text-slate-500 hover:text-slate-300'}" title="Pin">
+                <i data-lucide="star" class="w-4 h-4 ${link.pinned ? 'fill-amber-400' : ''}"></i>
+              </button>
+              <button onclick="copyToClipboard('${link.url}')" class="p-1.5 rounded-lg text-slate-400 hover:text-white" title="Copy URL">
+                <i data-lucide="copy" class="w-4 h-4"></i>
+              </button>
+              <button onclick="launchLink('${link.id}')" class="p-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white transition-colors" title="Launch">
+                <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      return `
+        <div class="group relative flex flex-col justify-between p-5 rounded-3xl bg-slate-900/60 hover:bg-slate-900/95 border border-slate-800/80 hover:border-indigo-500/40 backdrop-blur-xl transition-all duration-200 hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-0.5">
+          <div>
+            <div class="flex items-start justify-between gap-3">
+              <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-lg text-white shadow-md flex-shrink-0 group-hover:scale-105 transition-transform" style="background-color: ${link.color || '#3B82F6'}">
+                <img src="${favicon}" alt="" class="w-6 h-6 rounded-md" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <span style="display:none">${initialLetter}</span>
+              </div>
+              <div class="flex items-center gap-1">
+                <button onclick="togglePin('${link.id}')" class="p-1.5 rounded-xl transition-colors ${link.pinned ? 'text-amber-400 bg-amber-400/10' : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800'}" title="Toggle Pin">
+                  <i data-lucide="star" class="w-4 h-4 ${link.pinned ? 'fill-amber-400' : ''}"></i>
+                </button>
+                <button onclick="copyToClipboard('${link.url}')" class="p-1.5 rounded-xl text-slate-500 hover:text-slate-200 hover:bg-slate-800 transition-colors" title="Copy URL">
+                  <i data-lucide="copy" class="w-4 h-4"></i>
+                </button>
+                <button onclick="openLinkModal('${link.id}')" class="p-1.5 rounded-xl text-slate-500 hover:text-indigo-300 hover:bg-slate-800 transition-colors opacity-0 group-hover:opacity-100" title="Edit">
+                  <i data-lucide="edit-3" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700/60 uppercase tracking-wide">${link.category || 'General'}</span>
+                ${link.clicks > 0 ? `<span class="text-[10px] text-slate-500 font-mono flex items-center gap-1"><i data-lucide="trending-up" class="w-3 h-3 text-slate-500"></i> ${link.clicks} clicks</span>` : ''}
+              </div>
+              <h3 class="text-base font-bold text-white group-hover:text-indigo-300 transition-colors mt-2 line-clamp-1">${link.title}</h3>
+              <p class="text-xs text-slate-400 mt-1 line-clamp-2 leading-relaxed">${link.description || link.url}</p>
+            </div>
+          </div>
+
+          <div class="mt-5 pt-3 border-t border-slate-800/60 flex items-center justify-between">
+            <span class="text-[11px] text-slate-500 font-mono truncate max-w-[150px]">${cleanUrl}</span>
+            <button onclick="launchLink('${link.id}')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white font-semibold text-xs transition-all shadow-sm active:scale-95">
+              <span>Open</span>
+              <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    // Launch Link & Track Clicks
+    function launchLink(id) {
+      const link = links.find(l => l.id === id);
+      if (link) {
+        link.clicks = (link.clicks || 0) + 1;
+        renderMetrics();
+        renderDashboardCards();
+        let targetUrl = link.url;
+        if (!/^https?:\/\//i.test(targetUrl)) targetUrl = 'https://' + targetUrl;
+        window.open(targetUrl, '_blank', 'noopener,noreferrer');
+      }
+    }
+
+    // Pin Toggle
+    function togglePin(id) {
+      const link = links.find(l => l.id === id);
+      if (link) {
+        link.pinned = !link.pinned;
+        renderMetrics();
+        renderDashboardCards();
+        renderSettingsTable();
+        showToast(link.pinned ? 'Shortcut pinned to top' : 'Shortcut unpinned');
+      }
+    }
+
+    // Copy to Clipboard
+    function copyToClipboard(text) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      showToast('Copied URL to clipboard!');
+    }
+
+    // Export JSON
+    function exportJSON() {
+      copyToClipboard(JSON.stringify(links, null, 2));
+      showToast('JSON data copied to clipboard!');
+    }
+
+    // Render Settings Table
+    function renderSettingsTable() {
+      const tbody = document.getElementById('table-links-body');
+      tbody.innerHTML = links.map(link => `
+        <tr class="hover:bg-slate-800/40 transition-colors">
+          <td class="px-4 py-3">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white shadow-sm flex-shrink-0" style="background-color: ${link.color || '#3B82F6'}">
+                ${(link.title || 'U').charAt(0).toUpperCase()}
+              </div>
+              <div class="truncate max-w-xs sm:max-w-md">
+                <div class="font-semibold text-white truncate">${link.title}</div>
+                <div class="text-xs text-slate-400 truncate">${link.url}</div>
+              </div>
+            </div>
+          </td>
+          <td class="px-4 py-3">
+            <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700">
+              ${link.category || 'General'}
+            </span>
+          </td>
+          <td class="px-4 py-3">
+            ${link.pinned 
+              ? '<span class="inline-flex items-center gap-1 text-amber-400 text-xs font-semibold"><i data-lucide="star" class="w-3.5 h-3.5 fill-amber-400"></i> Pinned</span>'
+              : '<span class="text-slate-500 text-xs">Standard</span>'
+            }
+          </td>
+          <td class="px-4 py-3 font-mono text-slate-300">${link.clicks || 0}</td>
+          <td class="px-4 py-3 text-right">
+            <div class="flex items-center justify-end gap-1.5">
+              <button onclick="launchLink('${link.id}')" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white" title="Launch">
+                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+              </button>
+              <button onclick="openLinkModal('${link.id}')" class="p-1.5 rounded-lg bg-indigo-950/60 hover:bg-indigo-900 border border-indigo-800/60 text-indigo-300" title="Edit">
+                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+              </button>
+              <button onclick="deleteLink('${link.id}')" class="p-1.5 rounded-lg bg-red-950/60 hover:bg-red-900 border border-red-800/60 text-red-300" title="Delete">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    // Delete Link
+    function deleteLink(id) {
+      links = links.filter(l => l.id !== id);
+      renderApp();
+      showToast('Bookmark deleted');
+    }
+
+    // Render Category Badges (in settings)
+    function renderCategoryBadges() {
+      const container = document.getElementById('categories-badge-container');
+      container.innerHTML = categories.map(cat => `
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700">
+          <i data-lucide="tag" class="w-3 h-3 text-indigo-400"></i>
+          ${cat}
+          ${(cat !== 'All' && cat !== 'Work') ? `
+            <button onclick="removeCategory('${cat}')" class="text-slate-400 hover:text-red-400 ml-1">
+              <i data-lucide="x" class="w-3 h-3"></i>
+            </button>
+          ` : ''}
+        </span>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    // Add Category
+    function addCategory() {
+      const input = document.getElementById('input-new-category');
+      const val = input.value.trim();
+      if (!val) return;
+      if (categories.some(c => c.toLowerCase() === val.toLowerCase())) {
+        showToast('Category already exists', 'info');
+        return;
+      }
+      categories.push(val);
+      input.value = '';
+      renderCategoryPills();
+      renderCategoryBadges();
+      showToast(`Added category "${val}"`);
+    }
+
+    // Remove Category
+    function removeCategory(cat) {
+      categories = categories.filter(c => c !== cat);
+      if (selectedCategory === cat) selectedCategory = 'All';
+      renderCategoryPills();
+      renderCategoryBadges();
+      renderDashboardCards();
+      showToast('Category removed');
+    }
+
+    // Render Color Picker in Modal
+    function renderColorPicker(selectedColor = '#3B82F6') {
+      const container = document.getElementById('color-palette-picker');
+      document.getElementById('form-link-color').value = selectedColor;
+      container.innerHTML = COLORS.map(col => `
+        <button
+          type="button"
+          onclick="selectColor('${col}')"
+          class="w-6 h-6 rounded-full border-2 transition-transform ${col === selectedColor ? 'scale-110 border-white' : 'border-transparent opacity-70'}"
+          style="background-color: ${col}"
+        ></button>
+      `).join('');
+    }
+
+    function selectColor(col) {
+      renderColorPicker(col);
+    }
+
+    // Open Modal
+    function openLinkModal(id = null) {
+      const modal = document.getElementById('modal-link');
+      const modalTitle = document.getElementById('modal-title');
+      const selectCat = document.getElementById('form-link-category');
+
+      // Populate categories dropdown
+      selectCat.innerHTML = categories.filter(c => c !== 'All').map(c => `<option value="${c}">${c}</option>`).join('');
+
+      if (id) {
+        const link = links.find(l => l.id === id);
+        if (!link) return;
+        modalTitle.innerHTML = '<i data-lucide="edit-3" class="w-4 h-4 text-indigo-400"></i> Edit Bookmark';
+        document.getElementById('form-link-id').value = link.id;
+        document.getElementById('form-link-title').value = link.title || '';
+        document.getElementById('form-link-url').value = link.url || '';
+        document.getElementById('form-link-desc').value = link.description || '';
+        selectCat.value = link.category || 'Work';
+        document.getElementById('form-link-pinned').checked = !!link.pinned;
+        renderColorPicker(link.color || '#3B82F6');
+      } else {
+        modalTitle.innerHTML = '<i data-lucide="plus" class="w-4 h-4 text-indigo-400"></i> Add New Bookmark';
+        document.getElementById('form-link-id').value = '';
+        document.getElementById('form-link-title').value = '';
+        document.getElementById('form-link-url').value = '';
+        document.getElementById('form-link-desc').value = '';
+        selectCat.value = categories.find(c => c !== 'All') || 'Work';
+        document.getElementById('form-link-pinned').checked = false;
+        renderColorPicker('#3B82F6');
+      }
+
+      modal.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    // Close Modal
+    function closeLinkModal() {
+      document.getElementById('modal-link').classList.add('hidden');
+    }
+
+    // Handle Form Submit
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const id = document.getElementById('form-link-id').value;
+      const title = document.getElementById('form-link-title').value.trim();
+      let url = document.getElementById('form-link-url').value.trim();
+      const description = document.getElementById('form-link-desc').value.trim();
+      const category = document.getElementById('form-link-category').value;
+      const color = document.getElementById('form-link-color').value;
+      const pinned = document.getElementById('form-link-pinned').checked;
+
+      if (!title || !url) {
+        showToast('Title and URL are required', 'error');
+        return;
+      }
+
+      if (!/^https?:\/\//i.test(url)) {
+        url = 'https://' + url;
+      }
+
+      if (id) {
+        // Edit
+        const link = links.find(l => l.id === id);
+        if (link) {
+          link.title = title;
+          link.url = url;
+          link.description = description;
+          link.category = category;
+          link.color = color;
+          link.pinned = pinned;
+          showToast('Bookmark updated');
+        }
+      } else {
+        // Add
+        links.unshift({
+          id: 'link-' + Date.now(),
+          title,
+          url,
+          description,
+          category,
+          color,
+          pinned,
+          clicks: 0
+        });
+        showToast('New bookmark created');
+      }
+
+      closeLinkModal();
+      renderApp();
+    }
+
+    // Google Sheets: Pull
+    async function syncPullFromSheets(isInitial = false) {
+      const headerIcon = document.getElementById('icon-header-sync');
+      const headerTxt = document.getElementById('txt-header-sync');
+      const bannerStatus = document.getElementById('sync-banner-status');
+      const bannerTxt = document.getElementById('sync-banner-text');
+
+      headerIcon.classList.add('animate-spin');
+      headerTxt.innerText = 'Syncing...';
+
+      try {
+        const response = await fetch(GOOGLE_SHEET_URL);
+        const result = await response.json();
+
+        if (result.status === 'success' && Array.isArray(result.data)) {
+          if (result.data.length > 0) {
+            links = result.data;
+            
+            // Collect new categories
+            const newCats = new Set(categories);
+            result.data.forEach(item => {
+              if (item.category && item.category !== 'All') newCats.add(item.category);
+            });
+            categories = Array.from(newCats);
+
+            if (!isInitial) showToast(`Synced ${result.data.length} links from Google Sheet!`);
+          } else if (!isInitial) {
+            showToast('Google Sheet is currently empty.', 'info');
+          }
+
+          bannerStatus.className = 'mt-5 p-4 rounded-2xl bg-emerald-950/60 border border-emerald-800/80 text-emerald-300 text-xs flex items-center gap-2.5';
+          bannerTxt.innerText = `Last synced on ${new Date().toLocaleTimeString()}`;
+        } else {
+          throw new Error(result.message || 'Invalid format');
+        }
+      } catch (err) {
+        console.error(err);
+        bannerStatus.className = 'mt-5 p-4 rounded-2xl bg-red-950/80 border border-red-800 text-red-300 text-xs flex items-start gap-2.5';
+        bannerTxt.innerText = `Sync error: Could not reach Google Sheet Web App.`;
+        if (!isInitial) showToast('Sync error with Google Sheet', 'error');
+      } finally {
+        headerIcon.classList.remove('animate-spin');
+        headerTxt.innerText = 'Sync Sheet';
+        renderApp();
+      }
+    }
+
+    // Google Sheets: Push
+    async function syncPushToSheets() {
+      const headerIcon = document.getElementById('icon-header-sync');
+      const headerTxt = document.getElementById('txt-header-sync');
+      const bannerStatus = document.getElementById('sync-banner-status');
+      const bannerTxt = document.getElementById('sync-banner-text');
+
+      headerIcon.classList.add('animate-spin');
+      headerTxt.innerText = 'Pushing...';
+
+      try {
+        const response = await fetch(GOOGLE_SHEET_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'saveAll', links: links })
+        });
+
+        const result = await response.json();
+        if (result.status === 'success') {
+          showToast('Saved all links to your Google Sheet!');
+          bannerStatus.className = 'mt-5 p-4 rounded-2xl bg-emerald-950/60 border border-emerald-800/80 text-emerald-300 text-xs flex items-center gap-2.5';
+          bannerTxt.innerText = `Google Sheet updated on ${new Date().toLocaleTimeString()}`;
+        } else {
+          throw new Error(result.message || 'Push failed');
+        }
+      } catch (err) {
+        console.error(err);
+        bannerStatus.className = 'mt-5 p-4 rounded-2xl bg-red-950/80 border border-red-800 text-red-300 text-xs flex items-start gap-2.5';
+        bannerTxt.innerText = `Failed to push updates to Google Sheet.`;
+        showToast('Error syncing with Google Sheet', 'error');
+      } finally {
+        headerIcon.classList.remove('animate-spin');
+        headerTxt.innerText = 'Sync Sheet';
+      }
+    }
+  </script>
+</body>
+</html>
