@@ -158,6 +158,45 @@
     html.light [class~="hover:text-white"]:hover:not([class*="hover:bg-brand"]):not([class*="hover:from-brand"]) {
       color: #1c1710 !important;
     }
+
+    /* ---- UI polish ---- */
+    body { background-image: none; }
+    h1, h2, h3 { text-wrap: balance; }
+    p { text-wrap: pretty; }
+    #metric-total-links, #metric-pinned-links, #metric-total-clicks { font-variant-numeric: tabular-nums; font-size: 1.125rem; }
+    #greeting-text { font-style: normal; font-size: clamp(1.75rem, 4vw, 2.5rem); line-height: 1.1; letter-spacing: -0.01em; }
+    #input-search { padding-top: 1rem; padding-bottom: 1rem; font-size: 0.95rem; }
+    #section-pinned .font-serif, #section-all .font-serif { font-style: normal; font-size: 1.125rem; }
+    button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: 2px solid rgb(200 151 46); outline-offset: 2px;
+    }
+    .group h3 { letter-spacing: -0.005em; }
+    @media (max-width: 640px) { main { padding-top: 1.25rem; } }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    }
+
+    /* ---- 3D icon tiles ---- */
+    .tile3d {
+      position: relative; display: grid; place-items: center; overflow: hidden;
+      background:
+        radial-gradient(120% 90% at 25% 0%, rgba(255,255,255,.38) 0%, rgba(255,255,255,0) 55%),
+        linear-gradient(150deg, color-mix(in srgb, var(--c) 78%, #fff) 0%, var(--c) 48%, color-mix(in srgb, var(--c) 68%, #000) 100%);
+      box-shadow:
+        inset 0 1.5px 0 rgba(255,255,255,.55),
+        inset 0 -4px 8px rgba(0,0,0,.28),
+        0 1px 2px rgba(0,0,0,.4),
+        0 10px 18px -6px color-mix(in srgb, var(--c) 65%, transparent);
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .tile3d::after { content: ""; position: absolute; inset: 0 0 55% 0; background: linear-gradient(to bottom, rgba(255,255,255,.22), rgba(255,255,255,0)); pointer-events: none; }
+    .tile3d-glyph { color: #fff; stroke-width: 2.1; filter: drop-shadow(0 2px 2px rgba(0,0,0,.35)); position: relative; z-index: 1; }
+    .tile3d-fav { position: relative; z-index: 1; width: 62%; height: 62%; object-fit: contain; filter: drop-shadow(0 2px 2px rgba(0,0,0,.35)); }
+    .card3d:hover .tile3d { transform: translateY(-1px) scale(1.04); }
+    .open-pill { color: rgb(var(--c-border-hover)); background: transparent; border: 1px solid rgb(var(--c-border)); color: #cbd5e1; transition: all .2s ease; }
+    html.light .open-pill { color: #4a4330; }
+    .card3d:hover .open-pill, .card3d:focus-visible .open-pill { background: #a87817; border-color: #a87817; color: #fff; }
+    .card3d:focus-visible { outline: 2px solid rgb(200 151 46); outline-offset: 2px; }
   </style>
 </head>
 <body class="min-h-screen bg-dark-bg text-slate-100 flex flex-col font-sans selection:bg-brand-500 selection:text-white antialiased relative overflow-x-hidden bg-grid-pattern">
@@ -166,7 +205,7 @@
   <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[320px] bg-gradient-to-b from-brand-500/10 via-amber-400/5 to-transparent blur-3xl pointer-events-none -z-10 animate-glow-slow"></div>
 
   <!-- Toast Notification -->
-  <div id="toast" class="fixed bottom-6 right-6 z-50 transition-all duration-300 transform translate-y-20 opacity-0 pointer-events-none">
+  <div id="toast" class="fixed bottom-4 right-4 left-4 sm:left-auto sm:bottom-6 sm:right-6 z-50 transition-all duration-300 transform translate-y-20 opacity-0 pointer-events-none">
     <div id="toast-content" class="flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl border text-sm font-medium bg-emerald-950/90 border-emerald-700/60 text-emerald-200">
       <i id="toast-icon" data-lucide="check-circle-2" class="w-5 h-5 text-emerald-400 flex-shrink-0"></i>
       <span id="toast-message">Message</span>
@@ -246,7 +285,7 @@
         <!-- Add Link Primary Button -->
         <button 
           onclick="requireAdmin(() => openLinkModal())" 
-          class="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-400 hover:from-brand-500 hover:to-brand-300 text-white text-xs sm:text-sm font-semibold shadow-lg shadow-brand-500/25 transition-all active:scale-95"
+          class="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs sm:text-sm font-semibold shadow-lg shadow-brand-500/25 transition-all active:scale-95"
           title="Add a new bookmark (N)"
           aria-label="Add new bookmark"
         >
@@ -291,18 +330,13 @@
     <div id="view-dashboard" class="space-y-7 animate-fadeIn">
       
       <!-- Hero Greeting & Quick Search Bar -->
-      <div class="relative overflow-hidden rounded-3xl border border-dark-border bg-gradient-to-b from-dark-card/90 via-dark-card/60 to-dark-card/90 p-6 sm:p-8 backdrop-blur-xl shadow-xl">
-        <div class="absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b from-brand-300 via-brand-600 to-brand-400" aria-hidden="true"></div>
+      <div class="relative overflow-hidden rounded-2xl border border-dark-border bg-dark-card p-6 sm:p-8">
         <div class="max-w-2xl space-y-2">
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-medium">
-            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-            <span>Personal Workspace</span>
-          </div>
           <h2 id="greeting-text" class="font-serif italic text-3xl sm:text-4xl text-white tracking-tight">
             Good day, Amanullah
           </h2>
           <p class="text-xs sm:text-sm text-slate-400">
-            Search your private library of resources, cloud tools, and frequently accessed links.
+            Everything you use, in one place.
           </p>
         </div>
 
@@ -313,7 +347,7 @@
             <input
               id="input-search"
               type="text"
-              placeholder="Search websites, categories, tags, or URLs (Press '/' to focus)..."
+              placeholder="Search links, categories or URLs"
               oninput="handleSearch(this.value)"
               class="w-full pl-12 pr-28 py-3.5 text-sm bg-dark-bg/90 border border-dark-border focus:border-brand-500 rounded-2xl text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-all shadow-inner"
             />
@@ -414,7 +448,7 @@
 
       <!-- Skeleton Loading State -->
       <div id="dashboard-skeleton" class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" aria-hidden="true" aria-label="Loading bookmarks">
-        <div class="p-5 rounded-3xl bg-dark-card border border-dark-border animate-pulse">
+        <div class="p-5 rounded-2xl bg-dark-card border border-dark-border animate-pulse">
           <div class="flex items-start justify-between">
             <div class="w-12 h-12 rounded-2xl bg-dark-border/70"></div>
             <div class="w-16 h-6 rounded-lg bg-dark-border/50"></div>
@@ -424,7 +458,7 @@
           <div class="mt-2 h-3 w-full rounded bg-dark-border/40"></div>
           <div class="mt-5 pt-3.5 border-t border-dark-border/60 h-4 w-1/3 rounded bg-dark-border/40"></div>
         </div>
-        <div class="p-5 rounded-3xl bg-dark-card border border-dark-border animate-pulse">
+        <div class="p-5 rounded-2xl bg-dark-card border border-dark-border animate-pulse">
           <div class="flex items-start justify-between">
             <div class="w-12 h-12 rounded-2xl bg-dark-border/70"></div>
             <div class="w-16 h-6 rounded-lg bg-dark-border/50"></div>
@@ -434,7 +468,7 @@
           <div class="mt-2 h-3 w-full rounded bg-dark-border/40"></div>
           <div class="mt-5 pt-3.5 border-t border-dark-border/60 h-4 w-1/3 rounded bg-dark-border/40"></div>
         </div>
-        <div class="p-5 rounded-3xl bg-dark-card border border-dark-border animate-pulse hidden lg:block">
+        <div class="p-5 rounded-2xl bg-dark-card border border-dark-border animate-pulse hidden lg:block">
           <div class="flex items-start justify-between">
             <div class="w-12 h-12 rounded-2xl bg-dark-border/70"></div>
             <div class="w-16 h-6 rounded-lg bg-dark-border/50"></div>
@@ -447,7 +481,7 @@
       </div>
 
       <!-- Empty State -->
-      <div id="dashboard-empty-state" class="hidden p-14 text-center rounded-3xl bg-dark-card/50 border border-dashed border-dark-border my-8 backdrop-blur-xl">
+      <div id="dashboard-empty-state" class="hidden p-14 text-center rounded-2xl bg-dark-card/50 border border-dashed border-dark-border my-8 backdrop-blur-xl">
         <div class="w-16 h-16 rounded-3xl bg-brand-500/10 border border-brand-500/20 text-brand-400 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-brand-500/10">
           <i data-lucide="compass" class="w-8 h-8"></i>
         </div>
@@ -500,7 +534,7 @@
     <div id="view-settings" class="space-y-6 hidden animate-fadeIn">
       
       <!-- Settings Header Card -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-3xl bg-dark-card border border-dark-border shadow-xl">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl bg-dark-card border border-dark-border">
         <div>
           <h2 class="text-xl font-bold text-white flex items-center gap-2">
             <i data-lucide="sliders-horizontal" class="w-5 h-5 text-brand-400"></i>
@@ -618,7 +652,7 @@
         </div>
 
         <!-- Local Backup Box -->
-        <div class="p-6 rounded-3xl bg-dark-card border border-dark-border shadow-xl">
+        <div class="p-6 rounded-2xl bg-dark-card border border-dark-border">
           <div class="flex items-center justify-between">
             <div>
               <h4 class="text-sm font-bold text-white">Export Local Backup</h4>
@@ -638,7 +672,7 @@
 
       <!-- SUB-TAB 3: CATEGORIES -->
       <div id="subtab-categories" class="space-y-4 max-w-xl hidden">
-        <div class="p-6 rounded-3xl bg-dark-card border border-dark-border shadow-xl">
+        <div class="p-6 rounded-2xl bg-dark-card border border-dark-border">
           <h3 class="text-base font-bold text-white mb-1.5">Manage Categories</h3>
           <p class="text-xs text-slate-400 mb-5">Create custom categories to group and filter your bookmarks.</p>
           
@@ -1208,6 +1242,41 @@
     }
 
     // HTML Generator for Link Cards
+    // ---- 3D icon tiles ----
+    const GLYPHS = [
+      [/screenshot|image|photo|design|canva|figma/i, 'image'],
+      [/school|class|student|teach|learn|exam|study|edu|english|spelling/i, 'graduation-cap'],
+      [/mail|gmail|outlook/i, 'mail'],
+      [/calendar|schedule|timetable/i, 'calendar-days'],
+      [/sheet|excel|data|stat|score|analytic/i, 'bar-chart-3'],
+      [/doc|notion|note|write|pdf|drive/i, 'file-text'],
+      [/git|code|dev|api|console|app/i, 'code-2'],
+      [/video|youtube|watch|movie/i, 'play-circle'],
+      [/cricket|sport|fixture|league|match/i, 'trophy'],
+      [/bank|pay|finance|money/i, 'wallet'],
+      [/chat|whatsapp|slack|message/i, 'message-circle'],
+      [/ai|claude|gpt|chat/i, 'sparkles'],
+      [/work|office|business/i, 'briefcase']
+    ];
+    function glyphFor(link) {
+      const hay = `${link.title || ''} ${link.category || ''} ${link.description || ''} ${link.url || ''}`;
+      for (const [re, name] of GLYPHS) if (re.test(hay)) return name;
+      return 'layout-grid';
+    }
+    function faviconCheck(img) {
+      // Only keep real, high-res favicons; generic 16px globes fall back to the 3D glyph.
+      if (img.naturalWidth >= 48) { img.classList.remove('hidden'); img.nextElementSibling.classList.add('hidden'); }
+    }
+    function tile3d(link, size) {
+      const px = size === 'lg' ? 56 : 40;
+      const fav = getFavicon(link.url);
+      return `
+        <div class="tile3d flex-shrink-0" style="--c:${link.color || '#3B82F6'}; width:${px}px; height:${px}px; border-radius:${Math.round(px * 0.3)}px">
+          ${fav ? `<img src="${fav}" alt="" class="tile3d-fav hidden" onload="faviconCheck(this)" onerror="this.remove()">` : ''}
+          <i data-lucide="${glyphFor(link)}" class="tile3d-glyph" style="width:${Math.round(px * 0.5)}px; height:${Math.round(px * 0.5)}px"></i>
+        </div>`;
+    }
+
     function createCardHTML(link) {
       const favicon = getFavicon(link.url);
       const initialLetter = (link.title || 'U').charAt(0).toUpperCase();
@@ -1215,12 +1284,9 @@
 
       if (viewMode === 'compact') {
         return `
-          <div class="group flex items-center justify-between p-3.5 rounded-2xl bg-dark-card hover:bg-dark-cardHover border border-dark-border hover:border-brand-500/40 backdrop-blur-md transition-all shadow-sm">
+          <div class="group flex items-center justify-between p-3 rounded-xl bg-dark-card hover:bg-dark-cardHover border border-dark-border hover:border-brand-500/50 transition-colors">
             <div class="flex items-center gap-3.5 min-w-0 flex-1 cursor-pointer" onclick="launchLink('${link.id}')">
-              <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white shadow-sm flex-shrink-0 border border-white/10" style="background-color: ${link.color || '#3B82F6'}">
-                <img src="${favicon}" alt="" class="w-5 h-5 rounded" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                <span style="display:none">${initialLetter}</span>
-              </div>
+              ${tile3d(link, 'sm')}
               <div class="min-w-0 flex-1">
                 <div class="flex items-center gap-2">
                   <h3 class="text-sm font-bold text-white group-hover:text-brand-400 transition-colors truncate">${link.title}</h3>
@@ -1239,7 +1305,7 @@
               <button onclick="requireAdmin(() => deleteLink('${link.id}'))" class="p-2 rounded-xl text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors" title="Delete" aria-label="Delete ${link.title}">
                 <i data-lucide="trash-2" class="w-4 h-4"></i>
               </button>
-              <button onclick="launchLink('${link.id}')" class="p-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-400 hover:from-brand-500 hover:to-brand-300 text-white shadow-md shadow-brand-500/20 transition-all ml-0.5 sm:ml-1 active:scale-95" title="Launch" aria-label="Open ${link.title}">
+              <button onclick="launchLink('${link.id}')" class="p-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white shadow-md shadow-brand-500/20 transition-all ml-0.5 sm:ml-1 active:scale-95" title="Launch" aria-label="Open ${link.title}">
                 <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
               </button>
             </div>
@@ -1249,51 +1315,40 @@
 
       // Modern Grid Card
       return `
-        <div class="group relative flex flex-col justify-between p-5 rounded-3xl bg-dark-card hover:bg-dark-cardHover border border-dark-border hover:border-brand-500/40 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:shadow-brand-500/5 hover:-translate-y-1">
-          <div>
-            <div class="flex items-start justify-between gap-3">
-              
-              <!-- Favicon Tile -->
-              <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-lg text-white shadow-md flex-shrink-0 group-hover:scale-105 transition-transform border border-white/10" style="background-color: ${link.color || '#3B82F6'}">
-                <img src="${favicon}" alt="" class="w-6 h-6 rounded-md object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                <span style="display:none">${initialLetter}</span>
-              </div>
-
-              <!-- Action Toolbar -->
-              <div class="flex items-center gap-0.5">
-                <button onclick="togglePin('${link.id}')" class="p-2 rounded-xl transition-colors ${link.pinned ? 'text-amber-400 bg-amber-400/10' : 'text-slate-500 hover:text-slate-300 hover:bg-dark-bg'}" title="${link.pinned ? 'Unpin' : 'Pin'}" aria-label="${link.pinned ? 'Unpin' : 'Pin'} ${link.title}">
-                  <i data-lucide="star" class="w-4 h-4 ${link.pinned ? 'fill-amber-400' : ''}"></i>
-                </button>
-                <button onclick="copyToClipboard('${link.url}')" class="p-2 rounded-xl text-slate-500 hover:text-slate-200 hover:bg-dark-bg transition-colors" title="Copy URL" aria-label="Copy URL for ${link.title}">
+        <div class="card3d group relative flex flex-col p-5 rounded-2xl bg-dark-card hover:bg-dark-cardHover border border-dark-border hover:border-brand-500/50 transition-colors duration-200 cursor-pointer" role="link" tabindex="0" aria-label="Open ${link.title}" onclick="launchLink('${link.id}')" onkeydown="if(event.target===this&&event.key==='Enter'){launchLink('${link.id}')}">
+          <div class="flex items-start justify-between gap-3">
+            ${tile3d(link, 'lg')}
+            <div class="flex items-center -mr-1.5 -mt-1.5" onclick="event.stopPropagation()">
+              <button onclick="togglePin('${link.id}')" class="p-2 rounded-lg transition-colors ${link.pinned ? 'text-amber-400' : 'text-slate-500 hover:text-slate-200 hover:bg-dark-bg'}" title="${link.pinned ? 'Unpin' : 'Pin'}" aria-label="${link.pinned ? 'Unpin' : 'Pin'} ${link.title}">
+                <i data-lucide="star" class="w-4 h-4 ${link.pinned ? 'fill-amber-400' : ''}"></i>
+              </button>
+              <div class="flex items-center sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 transition-opacity">
+                <button onclick="copyToClipboard('${link.url}')" class="p-2 rounded-lg text-slate-500 hover:text-slate-200 hover:bg-dark-bg transition-colors" title="Copy URL" aria-label="Copy URL for ${link.title}">
                   <i data-lucide="copy" class="w-4 h-4"></i>
                 </button>
-                <button onclick="requireAdmin(() => openLinkModal('${link.id}'))" class="p-2 rounded-xl text-slate-500 hover:text-brand-300 hover:bg-dark-bg transition-colors sm:opacity-0 sm:group-hover:opacity-100" title="Edit" aria-label="Edit ${link.title}">
+                <button onclick="requireAdmin(() => openLinkModal('${link.id}'))" class="p-2 rounded-lg text-slate-500 hover:text-brand-300 hover:bg-dark-bg transition-colors" title="Edit" aria-label="Edit ${link.title}">
                   <i data-lucide="edit-3" class="w-4 h-4"></i>
                 </button>
-                <button onclick="requireAdmin(() => deleteLink('${link.id}'))" class="p-2 rounded-xl text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors sm:opacity-0 sm:group-hover:opacity-100" title="Delete" aria-label="Delete ${link.title}">
+                <button onclick="requireAdmin(() => deleteLink('${link.id}'))" class="p-2 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors" title="Delete" aria-label="Delete ${link.title}">
                   <i data-lucide="trash-2" class="w-4 h-4"></i>
                 </button>
               </div>
             </div>
-
-            <!-- Content -->
-            <div class="mt-4">
-              <div class="flex items-center gap-2">
-                <span class="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-dark-bg text-slate-300 border border-dark-border uppercase tracking-wider">${link.category || 'General'}</span>
-                ${link.clicks > 0 ? `<span class="text-[10px] text-slate-500 font-mono flex items-center gap-1"><i data-lucide="trending-up" class="w-3 h-3 text-slate-500"></i> ${link.clicks}</span>` : ''}
-              </div>
-              <h3 class="text-base font-bold text-white group-hover:text-brand-400 transition-colors mt-2.5 line-clamp-1">${link.title}</h3>
-              <p class="text-xs text-slate-400 mt-1 line-clamp-2 leading-relaxed">${link.description || link.url}</p>
-            </div>
           </div>
 
-          <!-- Bottom Bar -->
-          <div class="mt-5 pt-3.5 border-t border-dark-border/60 flex items-center justify-between">
-            <span class="text-[11px] text-slate-500 font-mono truncate max-w-[170px]">${cleanUrl}</span>
-            <button onclick="launchLink('${link.id}')" class="group/open flex items-center gap-1.5 pl-3.5 pr-3 py-1.5 rounded-xl bg-gradient-to-r from-brand-600 to-brand-400 hover:from-brand-500 hover:to-brand-300 text-white font-semibold text-xs transition-all shadow-md shadow-brand-500/20 hover:shadow-lg hover:shadow-brand-500/30 active:scale-95" aria-label="Open ${link.title}">
-              <span>Open</span>
-              <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 transition-transform duration-200 group-hover/open:translate-x-0.5 group-hover/open:-translate-y-0.5"></i>
-            </button>
+          <div class="mt-4 min-w-0">
+            <h3 class="text-base font-semibold text-white group-hover:text-brand-400 transition-colors line-clamp-1">${link.title}</h3>
+            <p class="text-sm text-slate-400 mt-1 line-clamp-2 leading-snug">${link.description || cleanUrl}</p>
+          </div>
+
+          <div class="mt-auto pt-5 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2 min-w-0 text-xs text-slate-400">
+              <span class="inline-flex items-center gap-1.5 flex-shrink-0"><span class="w-2 h-2 rounded-full" style="background-color:${link.color || '#3B82F6'}"></span>${link.category || 'General'}</span>
+              ${link.clicks > 0 ? `<span class="text-slate-500 flex-shrink-0 tabular-nums">· ${link.clicks} ${link.clicks === 1 ? 'visit' : 'visits'}</span>` : ''}
+            </div>
+            <span class="open-pill inline-flex items-center gap-1.5 pl-3 pr-2.5 py-1.5 rounded-lg text-xs font-semibold flex-shrink-0">
+              Open <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+            </span>
           </div>
         </div>
       `;
